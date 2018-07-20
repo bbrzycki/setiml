@@ -7,14 +7,14 @@ from keras import backend as K
 
 
 # dimensions of our images.
-img_width, img_height = 512/4, 1024/4
+img_width, img_height = 32, 1024
 
-train_data_dir = 'data/set02/train'
-validation_data_dir = 'data/set02/validation'
-nb_train_samples = 2000*5
-nb_validation_samples = 500*5
+train_data_dir = 'data/set04/train'
+validation_data_dir = 'data/set04/validation'
+nb_train_samples = 2000*3
+nb_validation_samples = 500*3
 epochs = 50
-batch_size = 8
+batch_size = 32
 
 if K.image_data_format() == 'channels_first':
     input_shape = (3, img_width, img_height)
@@ -38,7 +38,7 @@ model.add(Flatten())
 model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(5, activation='softmax'))
+model.add(Dense(3, activation='softmax'))
 
 model.compile(loss='sparse_categorical_crossentropy',
               optimizer='rmsprop',
@@ -74,4 +74,4 @@ model.fit_generator(
     validation_data=validation_generator,
     validation_steps=nb_validation_samples // batch_size)
 
-model.save_weights('512x1024_pulsed_multiclass.h5')
+model.save_weights('16x1024_pulsed_multiclass_norm.h5')
