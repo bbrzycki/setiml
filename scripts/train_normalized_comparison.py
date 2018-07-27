@@ -6,6 +6,8 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 from keras import backend as K
 import tensorflow as tf
 
+import numpy as np
+import os, sys, errno
 # config = tf.ConfigProto()
 # config.gpu_options.per_process_gpu_memory_fraction = 0.2
 # session = tf.Session(config=config)
