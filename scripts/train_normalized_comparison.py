@@ -91,3 +91,5 @@ for set in sets:
         if e.errno != errno.EEXIST:
             raise
     model.save_weights(model_dir + '%s.h5' % set)
+
+    print('Saved model for set %s' % set)

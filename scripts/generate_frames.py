@@ -71,7 +71,7 @@ for set in sets:
                                       stg.constant_bp_profile(level = 1.0))
 
             if set == 'raw':
-                signal = signal
+                signal = stg.inject_noise(signal)
             elif set == 'normalized':
                 signal = stg.normalize(stg.inject_noise(signal), cols = 0, exclude = 0.0, use_median=False)
             elif set == 'normalized_excluded':
@@ -98,7 +98,7 @@ for set in sets:
                                       stg.constant_bp_profile(level = 1.0))
 
             if set == 'raw':
-                signal = signal
+                signal = stg.inject_noise(signal)
             elif set == 'normalized':
                 signal = stg.normalize(stg.inject_noise(signal), cols = 0, exclude = 0.0, use_median=False)
             elif set == 'normalized_excluded':
@@ -120,7 +120,7 @@ for set in sets:
                                       stg.constant_bp_profile(level = 1.0))
 
             if set == 'raw':
-                signal = signal
+                signal = stg.inject_noise(signal)
             elif set == 'normalized':
                 signal = stg.normalize(stg.inject_noise(signal), cols = 0, exclude = 0.0, use_median=False)
             elif set == 'normalized_excluded':
