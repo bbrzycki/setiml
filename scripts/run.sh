@@ -1,0 +1,2 @@
+python generate_frames_scintillation.py
+python train_scintillation.py
