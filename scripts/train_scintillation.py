@@ -15,13 +15,13 @@ import os, sys, errno
 # dimensions of our images.
 img_width, img_height = 32, 1024
 
-dir = 'scintillated'
+dir = 'scintillated_large'
 
 train_data_dir = '/datax/scratch/bbrzycki/data/%s/train/' % (dir)
 validation_data_dir = '/datax/scratch/bbrzycki/data/%s/validation/' % (dir)
-nb_train_samples = 1000*2
-nb_validation_samples = 200*2
-epochs = 50
+nb_train_samples = 10000*2
+nb_validation_samples = 2000*2
+epochs = 100
 batch_size = 64
 
 if K.image_data_format() == 'channels_first':
@@ -88,6 +88,6 @@ try:
 except OSError as e:
     if e.errno != errno.EEXIST:
         raise
-model.save_weights(model_dir + '%s.h5' % 'scintillated')
+model.save_weights(model_dir + '%s.h5' % 'scintillated_large')
 
 print('Saved model!')

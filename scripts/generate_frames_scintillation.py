@@ -21,7 +21,7 @@ ts = np.arange(0, tchans*tsamp, tsamp)
 
 # Create folders
 import errno
-dir = 'scintillated'
+dir = 'scintillated_large'
 labels = ['present', 'not_present']
 dirs = ['/datax/scratch/bbrzycki/data/%s/train/%s/' % (dir, label) for label in labels] \
         + ['/datax/scratch/bbrzycki/data/%s/validation/%s/' % (dir, label) for label in labels] 
@@ -35,7 +35,7 @@ for d in dirs:
                 
 # Generation
 # Generate training and validation data!
-datasets = [('train', 1000), ('validation', 200)]
+datasets = [('train', 10000), ('validation', 2000)]
 
 for name, num in datasets:
 
@@ -69,7 +69,7 @@ for name, num in datasets:
         signal = stg.normalize(stg.inject_noise(signal), cols = 128, exclude = 0.2, use_median=False)
 
         plt.imsave(output_fn, signal)
-        print('Saved %s of %s scintillated data for %s, set %s' % (i + 1, num, name, set))
+        print('Saved %s of %s scintillated data for %s' % (i + 1, num, name))
 
     for i in range(num):
 
@@ -100,7 +100,7 @@ for name, num in datasets:
 
         plt.imsave(output_fn, signal)
         if i < num / 2:
-            print('Saved %s of %s constant level data for %s, set %s' % (i + 1, num, name, set))
+            print('Saved %s of %s constant level data for %s' % (i + 1, num, name))
         else:
-            print('Saved %s of %s pure noise data for %s, set %s' % (i + 1, num, name, set))
+            print('Saved %s of %s pure noise data for %s' % (i + 1, num, name))
          
