@@ -13,12 +13,12 @@ import os, sys, errno
 # session = tf.Session(config=config)
 
 # dimensions of our images.
-img_width, img_height = 64, 1024
+img_width, img_height = 32, 1024
 
-dir = 'scintillated_timescales_64_1024'
+dir = 'scintillated_timescales_32_1024'
 
-train_data_dir = '/datax/scratch/bbrzycki/data/%s/train/' % (dir)
-validation_data_dir = '/datax/scratch/bbrzycki/data/%s/validation/' % (dir)
+train_data_dir = '/datax/users/bbrzycki/data/%s/train/' % (dir)
+validation_data_dir = '/datax/users/bbrzycki/data/%s/validation/' % (dir)
 nb_train_samples = 1000*5
 nb_validation_samples = 200*5
 epochs = 50
@@ -82,7 +82,7 @@ model.fit_generator(
     validation_data=validation_generator,
     validation_steps=nb_validation_samples // batch_size)
 
-model_dir = '/datax/scratch/bbrzycki/models/%s/' % dir
+model_dir = '/datax/users/bbrzycki/models/%s/' % dir
 try:
     os.makedirs(model_dir)
 except OSError as e:
