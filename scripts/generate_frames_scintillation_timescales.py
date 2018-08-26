@@ -112,11 +112,13 @@ for name, num in datasets:
         start_index = np.random.randint(0,fchans)
         drift_rate = np.random.uniform(-start_index*df/(tsamp*tchans),
                                        (fchans-1-start_index)*df/(tsamp*tchans))
+        
         line_width = np.random.uniform(0.03, 0.04) ** 3
-        #drift_rate = 0
+        # RFI is at practically 0 drift rate
+        drift_rate = 0
         level = np.random.uniform(1,5)
         level = 5
-        spread = np.random.uniform(0.0004, 0.0006)
+        spread = np.random.uniform(0.0004, 0.0008)
 
         signal = stg.generate(ts,
                               fs,
