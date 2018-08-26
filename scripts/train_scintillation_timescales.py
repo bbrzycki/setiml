@@ -4,6 +4,7 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras import backend as K
+import keras
 import tensorflow as tf
 
 import numpy as np
@@ -16,6 +17,7 @@ import os, sys, errno
 img_width, img_height = 32, 1024
 
 dir = 'scintillated_timescales_32_1024_v2'
+VERSION = 'v2'
 
 train_data_dir = '/datax/scratch/bbrzycki/data/%s/train/' % (dir)
 validation_data_dir = '/datax/scratch/bbrzycki/data/%s/validation/' % (dir)
@@ -78,19 +80,25 @@ validation_generator = test_datagen.flow_from_directory(
     batch_size=batch_size,
     class_mode='sparse')
 
-model.fit_generator(
-    train_generator,
-    steps_per_epoch=nb_train_samples // batch_size,
-    epochs=epochs,
-    validation_data=validation_generator,
-    validation_steps=nb_validation_samples // batch_size)
-
 model_dir = '/datax/scratch/bbrzycki/models/%s/' % dir
 try:
     os.makedirs(model_dir)
 except OSError as e:
     if e.errno != errno.EEXIST:
         raise
-model.save_weights(model_dir + '%s_v2.h5' % dir)
+filepath = model_dir + '%s_%s.h5' % ('scintillated_timescales_32_1024', VERSION)
 
+model.fit_generator(
+    train_generator,
+    steps_per_epoch=nb_train_samples // batch_size,
+    epochs=epochs,
+    validation_data=validation_generator,
+    validation_steps=nb_validation_samples // batch_size,
+    callbacks=[keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=True, mode='auto'),
+             keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=0.001),
+             keras.callbacks.EarlyStopping(monitor='val_loss', patience=5,verbose=0, mode='auto')])
+
+
+model.save_weights(filepath)
+model.summary()
 print('Saved model!')
