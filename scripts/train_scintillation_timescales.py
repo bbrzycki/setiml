@@ -16,14 +16,14 @@ import os, sys, errno
 # dimensions of our images.
 img_width, img_height = 32, 1024
 
-dir = 'scintillated_timescales_32_1024_v2'
-VERSION = 'v2'
+dir = 'scintillated_timescales_32_1024_v2-0'
+VERSION = 'v2-0'
 
 train_data_dir = '/datax/scratch/bbrzycki/data/%s/train/' % (dir)
 validation_data_dir = '/datax/scratch/bbrzycki/data/%s/validation/' % (dir)
-nb_train_samples = 10000*3
-nb_validation_samples = 500*3
-epochs = 50
+nb_train_samples = 10000*4
+nb_validation_samples = 500*4
+epochs = 100
 batch_size = 64
 
 if K.image_data_format() == 'channels_first':
@@ -51,7 +51,7 @@ model.add(Flatten())
 model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(3, activation='softmax'))
+model.add(Dense(4, activation='softmax'))
 
 model.compile(loss='sparse_categorical_crossentropy',
               optimizer='rmsprop',
