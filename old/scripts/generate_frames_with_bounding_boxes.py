@@ -28,7 +28,7 @@ ts = np.arange(0, tchans*tsamp, tsamp)
 
 # Create folders
 import errno
-dir = 'scintillated_timescales_32_1024_v2-0'
+dir = 'with_bounding_boxes'
 labels = ['scintillated', 'constant', 'noise', 'choppy_rfi']
 dirs = ['/datax/scratch/bbrzycki/data/%s/train/%s/' % (dir, label) for label in labels] \
         + ['/datax/scratch/bbrzycki/data/%s/validation/%s/' % (dir, label) for label in labels] 
@@ -53,19 +53,17 @@ for name, num in datasets:
         start_index = np.random.randint(0,fchans)
         drift_rate = np.random.uniform(-start_index*df/(tsamp*tchans),
                                        (fchans-1-start_index)*df/(tsamp*tchans))
-        line_width = np.random.uniform(0.02, 0.05) ** 3
+        line_width = np.random.uniform(0.02, 0.03) ** 3
         #drift_rate = 0
         level = np.random.uniform(1,5)
         level = 5
-        period = np.random.uniform(32,320)
+        period = np.random.uniform(1,5)
         phase = np.random.uniform(0,period)
         sigma = np.random.uniform(0.1, 2)
         pulse_dir = 'rand'
-        # width = np.random.uniform(0.1,2)
-        width = np.random.uniform(8,32)
-        # width = np.random.uniform(4,32)
+        width = np.random.uniform(0.1, 2)
         pnum = 10
-        amplitude = np.random.uniform(level*1/3, level*2/3)
+        amplitude = np.random.uniform(level*2/3, level)
 
         signal = stg.generate(ts,
                               fs,
@@ -87,7 +85,7 @@ for name, num in datasets:
         start_index = np.random.randint(0,fchans)
         drift_rate = np.random.uniform(-start_index*df/(tsamp*tchans),
                                        (fchans-1-start_index)*df/(tsamp*tchans))
-        line_width = np.random.uniform(0.02, 0.05) ** 3
+        line_width = np.random.uniform(0.02, 0.03) ** 3
         #drift_rate = 0
         level = np.random.uniform(1,5)
         level = 5
@@ -104,34 +102,6 @@ for name, num in datasets:
 
         plt.imsave(output_fn, signal)
         print('Saved %s of %s constant data for %s' % (i + 1, num, name))
-        
-    for i in range(num):
-
-        output_fn = '/datax/scratch/bbrzycki/data/%s/%s/%s/%s_%04d.png' % (dir,name,'choppy_rfi','choppy_rfi',i)
-
-        start_index = np.random.randint(0,fchans)
-        drift_rate = np.random.uniform(-start_index*df/(tsamp*tchans),
-                                       (fchans-1-start_index)*df/(tsamp*tchans))
-        
-        line_width = np.random.uniform(0.03, 0.04) ** 3
-        # RFI is at practically 0 drift rate
-        drift_rate = 0
-        level = np.random.uniform(1,5)
-        level = 5
-        spread = np.random.uniform(0.0004, 0.0008)
-
-        signal = stg.generate(ts,
-                              fs,
-                              stg.choppy_rfi_path(f_start = fs[start_index], drift_rate = drift_rate, spread=spread, spread_type='gaussian'),
-                              stg.constant_t_profile(level = level),
-                              stg.gaussian_f_profile(width = line_width),
-                              stg.constant_bp_profile(level = 1.0),
-                              integrate = True)
-
-        signal = stg.normalize(stg.inject_noise(signal), cols = 128, exclude = 0.2, use_median=False)
-
-        plt.imsave(output_fn, signal)
-        print('Saved %s of %s choppy rfi data for %s' % (i + 1, num, name))
 
     for i in range(num):
 

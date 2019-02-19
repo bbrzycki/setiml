@@ -16,8 +16,8 @@ import os, sys, errno
 # dimensions of our images.
 img_width, img_height = 32, 1024
 
-dir = 'scintillated_timescales_32_1024_v2-0'
-VERSION = 'v2-0'
+dir = 'scintillated_timescales_32_1024_v2-2'
+VERSION = 'v2-2'
 
 train_data_dir = '/datax/scratch/bbrzycki/data/%s/train/' % (dir)
 validation_data_dir = '/datax/scratch/bbrzycki/data/%s/validation/' % (dir)
@@ -96,7 +96,7 @@ model.fit_generator(
     validation_steps=nb_validation_samples // batch_size,
     callbacks=[keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=True, mode='auto'),
              keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=0.001),
-             keras.callbacks.EarlyStopping(monitor='val_loss', patience=5,verbose=0, mode='auto')])
+             keras.callbacks.EarlyStopping(monitor='val_loss', patience=10,verbose=0, mode='auto')])
 
 
 model.save_weights(filepath)
