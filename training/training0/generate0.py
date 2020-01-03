@@ -81,85 +81,91 @@ def generate_signal(sig_type='constant',
                               integrate = True)
     return signal, [start_index, drift_rate, line_width, level, spread]
 
-####################################################################
 
-# Create folders
-training_set = 0
+# Specific to this training run
+def generate_training0_signal(label='constant'):
+    level = 10
+    line_width = np.random.uniform(0.015, 0.03) ** 3
 
-prefix = '/datax/scratch/bbrzycki/training/training%d' % training_set
-labels = ['scintillated', 'constant', 'noise', 'simple_rfi']
-dirs = ['%s/train/%s/' % (prefix, label) for label in labels] \
-        + ['%s/validation/%s/' % (prefix, label) for label in labels] 
+    if label == 'noise':
+        result = generate_signal(sig_type='noise')
+    elif label == 'constant':
+        result = generate_signal(sig_type='constant',
+                                 line_width=line_width,
+                                 level=level,
+                                 bias_no_drift=0.5,)
+    elif label == 'simple_rfi':
+        spread = np.random.uniform(0.003, 0.017) ** 2
+        result = generate_signal(sig_type='simple_rfi',
+                                 line_width=line_width,
+                                 level=level,
+                                 spread=spread,
+                                 bias_no_drift=1,)
+    elif label == 'scintillated':
+        period = np.random.uniform(1,5)
+        phase = np.random.uniform(0,period)
+        sigma = np.random.uniform(0.1, 2)
+        pulse_dir = 'rand'
+        width = np.random.uniform(0.1, 2)
+        pnum = 10
+        amplitude = np.random.uniform(level*2/3, level)
 
-for d in dirs:
-    try:
-        os.makedirs(d)
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
-            
-# Make csv to save data
-csv_fn = '%s/%s' % (prefix, 'labels.csv')
-                
-# Generate training and validation data!
-datasets = [('train', 5000), ('validation', 500)]
+        result = generate_signal(sig_type='scintillated',
+                                 line_width=line_width,
+                                 level=level,
+                                 bias_no_drift=0.5,
+                                 period=period,
+                                 phase=phase,
+                                 sigma=sigma,
+                                 pulse_dir=pulse_dir,
+                                 width=width,
+                                 pnum=pnum,
+                                 amplitude=amplitude)
+    return result
 
-with open(csv_fn, 'w') as f:
-    writer = csv.writer(f)
-    for label in labels:
-        for process, num in datasets:
-            for i in range(num):
-                output_prefix = '%s/%s/%s/%s_%04d' % (prefix, process, label, label, i,)
-                
-                ##############################################################################
-                # Generate signals -- these parameters should be tuned to whatever makes sense
-                level = 10
-                line_width = np.random.uniform(0.015, 0.03) ** 3
-                
-                if label == 'noise':
-                    result = generate_signal(sig_type='noise')
-                elif label == 'constant':
-                    result = generate_signal(sig_type='constant',
-                                             line_width=line_width,
-                                             level=level,
-                                             bias_no_drift=0.5,)
-                elif label == 'simple_rfi':
-                    spread = np.random.uniform(0.003, 0.017) ** 2
-                    result = generate_signal(sig_type='simple_rfi',
-                                             line_width=line_width,
-                                             level=level,
-                                             spread=spread,
-                                             bias_no_drift=1,)
-                elif label == 'scintillated':
-                    period = np.random.uniform(1,5)
-                    phase = np.random.uniform(0,period)
-                    sigma = np.random.uniform(0.1, 2)
-                    pulse_dir = 'rand'
-                    width = np.random.uniform(0.1, 2)
-                    pnum = 10
-                    amplitude = np.random.uniform(level*2/3, level)
 
-                    result = generate_signal(sig_type='scintillated',
-                                             line_width=line_width,
-                                             level=level,
-                                             bias_no_drift=0.5,
-                                             period=period,
-                                             phase=phase,
-                                             sigma=sigma,
-                                             pulse_dir=pulse_dir,
-                                             width=width,
-                                             pnum=pnum,
-                                             amplitude=amplitude)
-                    
-                signal, [start_index, drift_rate, line_width, level, spread] = result
-            
-                # Normalize and write data
-                normalized_signal = stg.normalize(stg.inject_noise(signal), cols = 128, exclude = 0.2, use_median=False)
+if __name__ == '__main__':
+    ####################################################################
 
-                plt.imsave(output_prefix + '.png', normalized_signal)
-                np.save(output_prefix + '.npy', normalized_signal)
-                
-                writer.writerow([output_prefix, start_index, drift_rate, line_width, level, spread])
-                print([output_prefix, start_index, drift_rate, line_width, level, spread])
-                
-                print('Saved %s of %s signal data for %s, %s' % (i + 1, num, label, process))
+    # Create folders
+    training_set = '0'
+
+    prefix = '/datax/scratch/bbrzycki/training/training%s' % training_set
+    labels = ['scintillated', 'constant', 'noise', 'simple_rfi']
+    dirs = ['%s/train/%s/' % (prefix, label) for label in labels] \
+            + ['%s/validation/%s/' % (prefix, label) for label in labels] 
+
+    for d in dirs:
+        try:
+            os.makedirs(d)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+    # Make csv to save data
+    csv_fn = '%s/%s' % (prefix, 'labels.csv')
+
+    # Generate training and validation data!
+    datasets = [('train', 5000), ('validation', 500)]
+
+    with open(csv_fn, 'w') as f:
+        writer = csv.writer(f)
+        for label in labels:
+            for process, num in datasets:
+                for i in range(num):
+                    output_prefix = '%s/%s/%s/%s_%04d' % (prefix, process, label, label, i,)
+
+                    ##############################################################################
+                    # Generate signals -- these parameters should be tuned to whatever makes sense
+                    signal, [start_index, drift_rate, line_width, level, spread] = generate_training0_signal(label=label)
+
+                    # Normalize and write data
+                    normalized_signal = stg.normalize(stg.inject_noise(signal), cols = 128, exclude = 0.2, use_median=False)
+
+                    plt.imsave(output_prefix + '.png', normalized_signal)
+                    np.save(output_prefix + '.npy', normalized_signal)
+
+                    writer.writerow([output_prefix, start_index, drift_rate, line_width, level, spread])
+                    print([output_prefix, start_index, drift_rate, line_width, level, spread])
+
+                    print('Saved %s of %s signal data for %s, %s' % (i + 1, num, label, process))

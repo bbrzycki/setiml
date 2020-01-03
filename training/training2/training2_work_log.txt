@@ -1,0 +1,102 @@
+## training2 set
+## Bryan Brzycki
+
+## Used for CS 282 final project
+## Two datasets, one with one signal and another with 2 signals
+
+## For one signal dataset, signals range from 0 - 25 dB in 5 dB increments for a total of 6 SNR levels
+## For two signal dataset, one signal is held constant at 25 dB and 0 drift rate, similating RFI, and the other ranged from 0 - 25 dB in a similar way
+
+## We analyze different models and how well they do in localizing signals in both cases. We treat this as a regression problem where we are predicting indices (that are normalized to [0, 1])
+
+[...]
+
+## 07/11/19
+## train/2sig/vgg19.py uses the VGG19 architecture with weights pre-trained on ImageNet data
+## I am fine-tuning these weights with our dataset, first freezing all the pre-trained weights, adding a Dense layer with 1024 nodes and a Dense(4) linear output layer, and only training the top layer.
+## For now, I am trying 50 epochs, with callbacks for LR reduction and early stopping on plateaus in loss. Using Adam optimizer.
+
+## After that, I go down in groups of convolutional blocks, gradually making more and more layers trainable, each for a max off 50 epochs with the same callbacks. Using SGD optimizer for these subsequent training legs. For each leg, I'm saving the loss and val_loss history to a file along with the saved model weights. 
+
+## Structure:
+
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+input_1 (InputLayer)         (None, 64, 1024, 3)       0
+_________________________________________________________________
+block1_conv1 (Conv2D)        (None, 64, 1024, 64)      1792
+_________________________________________________________________
+block1_conv2 (Conv2D)        (None, 64, 1024, 64)      36928
+_________________________________________________________________
+block1_pool (MaxPooling2D)   (None, 32, 512, 64)       0
+_________________________________________________________________
+block2_conv1 (Conv2D)        (None, 32, 512, 128)      73856
+_________________________________________________________________
+block2_conv2 (Conv2D)        (None, 32, 512, 128)      147584
+_________________________________________________________________
+block2_pool (MaxPooling2D)   (None, 16, 256, 128)      0
+_________________________________________________________________
+block3_conv1 (Conv2D)        (None, 16, 256, 256)      295168
+_________________________________________________________________
+block3_conv2 (Conv2D)        (None, 16, 256, 256)      590080
+_________________________________________________________________
+block3_conv3 (Conv2D)        (None, 16, 256, 256)      590080
+_________________________________________________________________
+block3_conv4 (Conv2D)        (None, 16, 256, 256)      590080
+_________________________________________________________________
+block3_pool (MaxPooling2D)   (None, 8, 128, 256)       0
+_________________________________________________________________
+block4_conv1 (Conv2D)        (None, 8, 128, 512)       1180160
+_________________________________________________________________
+block4_conv2 (Conv2D)        (None, 8, 128, 512)       2359808
+_________________________________________________________________
+block4_conv3 (Conv2D)        (None, 8, 128, 512)       2359808
+_________________________________________________________________
+block4_conv4 (Conv2D)        (None, 8, 128, 512)       2359808
+_________________________________________________________________
+block4_pool (MaxPooling2D)   (None, 4, 64, 512)        0
+_________________________________________________________________
+block5_conv1 (Conv2D)        (None, 4, 64, 512)        2359808
+_________________________________________________________________
+block5_conv2 (Conv2D)        (None, 4, 64, 512)        2359808
+_________________________________________________________________
+block5_conv3 (Conv2D)        (None, 4, 64, 512)        2359808
+_________________________________________________________________
+block5_conv4 (Conv2D)        (None, 4, 64, 512)        2359808
+_________________________________________________________________
+block5_pool (MaxPooling2D)   (None, 2, 32, 512)        0
+_________________________________________________________________
+global_average_pooling2d_1 ( (None, 512)               0
+_________________________________________________________________
+dense_1 (Dense)              (None, 1024)              525312
+_________________________________________________________________
+dense_2 (Dense)              (None, 4)                 4100
+=================================================================
+
+0 input_1
+1 block1_conv1
+2 block1_conv2
+3 block1_pool
+4 block2_conv1
+5 block2_conv2
+6 block2_pool
+7 block3_conv1
+8 block3_conv2
+9 block3_conv3
+10 block3_conv4
+11 block3_pool
+12 block4_conv1
+13 block4_conv2
+14 block4_conv3
+15 block4_conv4
+16 block4_pool
+17 block5_conv1
+18 block5_conv2
+19 block5_conv3
+20 block5_conv4
+21 block5_pool
+
+## Was taking way too long -- turns out that the augmentation step is really taxing, especially on 32x1024 -> 64x1024x3. Espeically repetitive on further batches. 
+
+## Decided to augment all 120000 training frames ahead of time so that training is quicker -- hopefully it works as expected.

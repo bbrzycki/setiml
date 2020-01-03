@@ -1,0 +1,47 @@
+## training3 set
+## Bryan Brzycki
+
+prefix = /datax/scratch/bbrzycki/training/training3
+dirs = ['%s/data/train/' % prefix, '%s/data/test/' % prefix]
+
+## Want to see how well we can predict the number of signals in an image (i.e. to correctly identify crowded frames and perhaps dimmer signals in the presence off brighter ones)
+
+## 06/11/19
+## Generated dataset with 2000 and 200 frames per training and test subsplits:
+## 0 to 10 signals (11 total categories)
+## 0%, 10%, ..., 100% of the signals have 0 drift rate ('RFI rate') (11 total categories)
+## SNR range: 25 - 250
+## width range: 5 - 10 px; each px is df wide; for this data that's ~1.4 Hz
+
+## Total: 11 * 11 * 2000 = 242000 training frames
+## Total: 11 * 11 * 200 = 24200 test frames
+
+## Image information are saved as dictionaries in {path_prefix}/data/{split_name} indexed by frame .npy filename. {split_name} is just 'train' or 'test'
+
+## Relevant fn / structure info:
+
+frame_fn = '%s/data/%s/%02dsig_%.01frfi_%06d.npy' % (prefix, split_name, sig_num, rfi_frac, i)
+
+frame_info = {
+        'noise': [noise_mean[0], noise_std[0], noise_min[0]],
+        'signals': [],
+        'frame_params': [sig_num, rfi_frac, sig_snr_range[0], sig_snr_range[1], width_range[0], width_range[1]],
+}
+    
+sig_info = np.array([start_index / fchans, end_index / fchans, (end_index - start_index) / tchans, line_width / np.abs(df), snr])
+
+all_noise_props[frame_fn] = (frame_info['noise'])
+all_signal_props[frame_fn] = (frame_info['signals'])
+all_frame_params[frame_fn] = (frame_info['frame_params'])
+
+np.save('%s/data/%s/noise_labels.npy' % (prefix, split_name), all_noise_props)
+np.save('%s/data/%s/signal_labels.npy' % (prefix, split_name), all_signal_props)
+np.save('%s/data/%s/frame_param_labels.npy' % (prefix, split_name), all_frame_params)
+
+##
+
+## compute_predictions.py is a script that runs both an ML classifier
+## as well as turboseti on each individual frame
+## I arbitrarily truncated both training and testing just to make
+## things run faster, but I selected them at random so that there's
+## no inherent bias in the results.
